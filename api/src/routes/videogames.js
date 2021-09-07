@@ -2,7 +2,9 @@ const express =require('express')
 const { Videogame , Generos} = require('../db');
 const  { v4: uuidv4} =require('uuid')
 const router =express.Router()
-const axios = require('axios')
+const axios = require('axios');
+const {Op} = require('sequelize');
+
 require('dotenv').config();
 const {key} = process.env
 //POST /videogame
@@ -16,7 +18,7 @@ router.post('/',(req,res)=>{
         releaseDate,
         rating,
         plataformas,
-        rutaImage
+        rutaImage,
     }).then((creado)=>{
         res.json(creado)
     })
@@ -29,7 +31,7 @@ router.post('/',(req,res)=>{
 router.get('/',(req,res)=>{
     return Videogame.findAll({
         include: Generos,
-        offset: 1, limit:100
+        limit:100
     })
     .then((videogame)=>{
         return res.json(videogame)
@@ -57,12 +59,43 @@ router.get ('/conApi', (req,res)=>{
 })
 
 //GETvideogames?name="..."
+router.get('/name', (req,res)=>{
+    const {name} = req.query
+    console.log(name)
+    const videogame = Videogame.findAll({
+        where:{name: name},
+        include: Generos
+    }).then(e=>{
+        if(e.length==0){
+            res.send('no existe')
+        }
+        res.json(e)
+    }).catch((e)=>console.log('error'))
+    
+})
+
 //GET /videogame/{idVideogame}
-router.get('/id',async(req,res)=>{
-    let player =await Player.findByPk(req.params)
-    console.log(player)
-    console.log(req.params.id)
-    res.json(player || 'player not found')
+router.get('/:idVideogame',async(req,res)=>{
+    let play =await Videogame.findByPk(req.params.idVideogame,{include:Generos} )
+    res.json(play || 'player not found')
+})
+
+//get con like
+router.get('/like/:name',(req,res)=>{
+    const {name} = req.params
+    console.log(name)
+    Videogame.findAll({
+        where:{
+            name:
+           { [Op.like]: `%${name}%`}
+           
+        },include:Generos
+    }).then(e=>{
+        if(e.length==0){
+            res.send('no existe')
+        }
+        res.json(e)
+    }).catch(e=> console.log('error de like'))
 })
 
 

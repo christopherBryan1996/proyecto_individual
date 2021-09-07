@@ -39,13 +39,13 @@ conn.sync({ force: true }).then(() => {
         var apiVidGam= result[0].data.results
         var apiGen = result[1].data.results
         //console.log(apiVidGam)
-        var echge = apiGen.map(e=>{
+        var Echge = apiGen.map(e=>{
           Generos.create({
             id:e.id,
             name: e.name
           })
         })
-        var echoVI= apiVidGam.map(e=>{
+        var EchoVI= apiVidGam.map(e=>{
           var plataforma= e.parent_platforms.map(e1=>{
             var string=e1.platform.name.toString()
             return string
@@ -58,11 +58,13 @@ conn.sync({ force: true }).then(() => {
             releaseDate:e.released,
             rating: e.rating,
             plataformas: plataforma.toString(),
-            rutaImage:e.background_image
+            rutaImage:e.background_image,
           })
         })
-        Promise.all([echoVI, echge])
-        .then(resp=>console.log('hecho'))
+        Promise.all([EchoVI, Echge])
+        .then(async resp=>{
+          console.log('hecho')
+        })
         .catch(e=>console.log('error'))
       
     })
